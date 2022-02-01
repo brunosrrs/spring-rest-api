@@ -17,6 +17,7 @@ public class VendasApplication {
 
     //inicio da aplicação spring
     public static void main(String[] args) {
+
         SpringApplication.run(VendasApplication.class, args);
     }
 }
