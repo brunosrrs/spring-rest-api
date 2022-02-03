@@ -4,10 +4,12 @@ import io.github.brunosrrs.domain.entity.Cliente;
 import io.github.brunosrrs.domain.entity.ItemPedido;
 import io.github.brunosrrs.domain.entity.Pedido;
 import io.github.brunosrrs.domain.entity.Produto;
+import io.github.brunosrrs.domain.enums.StatusPedido;
 import io.github.brunosrrs.domain.repository.Clientes;
 import io.github.brunosrrs.domain.repository.ItensPedidos;
 import io.github.brunosrrs.domain.repository.Pedidos;
 import io.github.brunosrrs.domain.repository.Produtos;
+import io.github.brunosrrs.exception.PedidoNaoEncontradoException;
 import io.github.brunosrrs.exception.RegraNegocioException;
 import io.github.brunosrrs.rest.dto.ItemPedidoDTO;
 import io.github.brunosrrs.rest.dto.PedidoDTO;
@@ -42,6 +44,7 @@ public class PedidoServiceImple implements PedidoService {
         pedido.setTotal(dto.getTotal());
         pedido.setDataPedido(LocalDate.now());
         pedido.setCliente(cliente);
+        pedido.setStatus(StatusPedido.REALIZADO);
 
         List<ItemPedido> itemsPedido = converterItems(pedido, dto.getItens());
         repository.save(pedido);
@@ -54,6 +57,16 @@ public class PedidoServiceImple implements PedidoService {
     public Optional<Pedido> obterPedidoCompleto(Integer id) {
 
         return repository.findByIdFetchItens(id);
+    }
+
+    @Override
+    @Transactional
+    public void atualizaStatus(Integer id, StatusPedido statusPedido) {
+        repository.findById(id)
+                .map( pedido -> {
+                    pedido.setStatus(statusPedido);
+                    return repository.save(pedido);
+                }).orElseThrow( () -> new PedidoNaoEncontradoException());
     }
 
     private List<ItemPedido> converterItems(Pedido pedido, List<ItemPedidoDTO> items){

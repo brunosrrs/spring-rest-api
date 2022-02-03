@@ -3,10 +3,13 @@ package io.github.brunosrrs.rest.controller;
 
 import io.github.brunosrrs.domain.entity.ItemPedido;
 import io.github.brunosrrs.domain.entity.Pedido;
+import io.github.brunosrrs.domain.enums.StatusPedido;
+import io.github.brunosrrs.rest.dto.AtualizacaoStatusPedidoDTO;
 import io.github.brunosrrs.rest.dto.InformacaoItemPedidoDTO;
 import io.github.brunosrrs.rest.dto.InformacoesPedidoDTO;
 import io.github.brunosrrs.rest.dto.PedidoDTO;
 import io.github.brunosrrs.service.PedidoService;
+import org.springframework.http.HttpStatus;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -45,6 +48,13 @@ public class PedidoController {
                 .orElseThrow( () -> new ResponseStatusException(NOT_FOUND, "Pedido não encontrado."));
     }
 
+    @PatchMapping("{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateStatus(@PathVariable Integer id, @RequestBody AtualizacaoStatusPedidoDTO dto){
+        String novoStatus = dto.getNovoStatus();
+        service.atualizaStatus(id, StatusPedido.valueOf(novoStatus));
+    }
+
     private InformacoesPedidoDTO converter (Pedido pedido){
         return InformacoesPedidoDTO.builder()
                 .codigo(pedido.getId())
@@ -52,6 +62,7 @@ public class PedidoController {
                 .cpf(pedido.getCliente().getCpf())
                 .nomeCliente(pedido.getCliente().getNome())
                 .total(pedido.getTotal())
+                .status(pedido.getStatus().name())
                 .items(converter(pedido.getItens()))
                 .build();
     }

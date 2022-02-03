@@ -1,5 +1,6 @@
 package io.github.brunosrrs.rest.controller;
 
+import io.github.brunosrrs.exception.PedidoNaoEncontradoException;
 import io.github.brunosrrs.exception.RegraNegocioException;
 import io.github.brunosrrs.rest.ApiErrors;
 import org.springframework.http.HttpStatus;
@@ -18,4 +19,10 @@ public class ApplicationControllerAdvice {
 
     }
 
+    @ExceptionHandler(PedidoNaoEncontradoException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiErrors handlePedidoNofFoundException(PedidoNaoEncontradoException ex){
+        return new ApiErrors(ex.getMessage());
+
+    }
 }
